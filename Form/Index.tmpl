@@ -1,0 +1,41 @@
+{{ define "Index" }}
+  {{ template "Header" }}
+    {{ template "Menu"  }}
+    <h2> Search </h2>
+     <form action="/search" method="POST">
+    <label for="txtName">Name</label>
+    <input type="text" name="UName" id="txtName" placeholder="Enter Name">
+
+    <label for="txtCity">City</label>
+    <input type="text" name="UCity" id="txtCity" placeholder="Enter City">
+
+    <input type="submit" text="Search">
+    </form>
+
+     <h2> Registered </h2>
+    <table border="1">
+      <thead>
+      <tr>
+        <td>ID</td>
+        <td>Name</td>
+        <td>City</td>
+        <td>View</td>
+        <td>Edit</td>
+        <td>Delete</td>
+      </tr>
+       </thead>
+       <tbody>
+    {{ range . }}
+      <tr>
+        <td>{{ .Id }}</td>
+        <td> {{ .Name }} </td>
+        <td>{{ .City }} </td> 
+        <td><a href="/show?id={{ .Id }}">View</a></td>
+        <td><a href="/edit?id={{ .Id }}">Edit</a></td>
+        <td><a href="/delete?id={{ .Id }}">Delete</a><td>
+      </tr>
+    {{ end }}
+       </tbody>
+    </table>
+  {{ template "Footer" }}
+{{ end }}
