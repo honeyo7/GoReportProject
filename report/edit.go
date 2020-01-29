@@ -4,7 +4,9 @@ import (
 
 	c "../config"
 	"net/http"
-	"log"
+    "log"
+    odbc "../common"
+    "strconv"
 )
 
 func Edit(w http.ResponseWriter, r *http.Request) {
@@ -31,18 +33,20 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
-    db := c.DbConn()
+   
     if r.Method == "POST" {
         name := r.FormValue("name")
         city := r.FormValue("city")
         id := r.FormValue("uid")
-        insForm, err := db.Prepare("UPDATE users SET name=?, city=? WHERE id=?")
+        insForm, err := odbc.ExecuteUpdateGetRowsAffected("UPDATE users SET name='" + name + "', city='" + city + "' WHERE id=" + id)
         if err != nil {
             panic(err.Error())
         }
-        insForm.Exec(name, city, id)
-        log.Println("UPDATE: Name: " + name + " | City: " + city)
+
+        s1 := strconv.FormatInt(int64(insForm), 10)
+        
+        log.Println("UPDATE: Name: " + name + " | City: " + city + ". Row Updated:" + s1)
     }
-    defer db.Close()
+   
     http.Redirect(w, r, "/", 301)
 }
