@@ -5,7 +5,7 @@ import (
 	c "../config"
 	"net/http"
     "log"
-    odbc "../common"
+    odbc "../odbc"
     "strconv"
 )
 

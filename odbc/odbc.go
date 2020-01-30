@@ -1,4 +1,4 @@
-package common
+package odbc
 
 import (
 
@@ -38,7 +38,47 @@ func ExecuteQueryRows(strQuery string) ( *sql.Rows, error){
 
 }
 
+func ExecuteInsertGetLastID(strQuery string) (int64, error){
+	db := c.DbConn()
+
+	selDB, err :=db.Prepare(strQuery)
+	res, err := selDB.Exec()
+	var intLastID int64
+	if err !=nil{
+		intLastID=0
+	}else{
+		intLastID,err = res.LastInsertId()
+		if err !=nil{
+			intLastID=0
+		}
+	}
+	
+	defer db.Close()
+	return intLastID,err
+
+}
+
 func ExecuteUpdateGetRowsAffected(strQuery string) (int64, error){
+	db := c.DbConn()
+
+	selDB, err :=db.Prepare(strQuery)
+	res, err := selDB.Exec()
+	var intAffectedRows int64
+	if err !=nil{
+		intAffectedRows=0
+	}else{
+		intAffectedRows,err = res.RowsAffected()
+		if err !=nil{
+			intAffectedRows=0
+		}
+	}
+	
+	defer db.Close()
+	return intAffectedRows,err
+
+}
+
+func TestExecuteUpdateGetRowsAffected(strQuery string) (int64, error){
 	db := c.DbConn()
 
 	selDB, err :=db.ExecContext(ctx,strQuery)
@@ -57,7 +97,7 @@ func ExecuteUpdateGetRowsAffected(strQuery string) (int64, error){
 
 }
 
-func ExecuteInsertGetLastID(strQuery string) (int64, error){
+func TestExecuteInsertGetLastID(strQuery string) (int64, error){
 	db := c.DbConn()
 
 	selDB, err :=db.ExecContext(ctx,strQuery)
@@ -75,4 +115,7 @@ func ExecuteInsertGetLastID(strQuery string) (int64, error){
 	return intLastID,err
 
 }
+
+
+
 

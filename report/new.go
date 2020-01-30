@@ -2,9 +2,10 @@ package report
 
 import (
 
-	c "../config"
+    "strconv"
 	"net/http"
-	"log"
+    "log"
+    odbc "../odbc"
 )
 
 func New(w http.ResponseWriter, r *http.Request) {
@@ -12,17 +13,16 @@ func New(w http.ResponseWriter, r *http.Request) {
 }
 
 func Insert(w http.ResponseWriter, r *http.Request) {
-    db := c.DbConn()
-    if r.Method == "POST" {
+   if r.Method == "POST" {
         name := r.FormValue("name")
         city := r.FormValue("city")
-        insForm, err := db.Prepare("INSERT INTO users(name, city) VALUES(?,?)")
+        insForm, err := odbc.ExecuteInsertGetLastID("INSERT INTO users(name, city) VALUES('" + name + "','" + city + "')")
         if err != nil {
             panic(err.Error())
         }
-        insForm.Exec(name, city)
-        log.Println("INSERT: Name: " + name + " | City: " + city)
+        s1 := strconv.FormatInt(int64(insForm), 10)
+        log.Println("INSERT: Name: " + name + " | City: " + city + ". UserID: " + s1)
     }
-    defer db.Close()
+   
     http.Redirect(w, r, "/", 301)
 }
