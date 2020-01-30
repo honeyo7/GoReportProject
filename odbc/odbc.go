@@ -40,18 +40,26 @@ func ExecuteQueryRows(strQuery string) ( *sql.Rows, error){
 
 func ExecuteInsertGetLastID(strQuery string) (int64, error){
 	db := c.DbConn()
-
-	selDB, err :=db.Prepare(strQuery)
-	res, err := selDB.Exec()
 	var intLastID int64
+	
+	selDB, err :=db.Prepare(strQuery)
 	if err !=nil{
 		intLastID=0
-	}else{
-		intLastID,err = res.LastInsertId()
-		if err !=nil{
-			intLastID=0
-		}
+		return intLastID,err 
 	}
+
+	res, err := selDB.Exec()
+	if err !=nil{
+		intLastID=0
+		return intLastID,err 
+	}
+	
+	
+	intLastID,err = res.LastInsertId()
+	if err !=nil{
+		intLastID=0
+	}
+	
 	
 	defer db.Close()
 	return intLastID,err
@@ -60,59 +68,27 @@ func ExecuteInsertGetLastID(strQuery string) (int64, error){
 
 func ExecuteUpdateGetRowsAffected(strQuery string) (int64, error){
 	db := c.DbConn()
-
+	var intAffectedRows int64
 	selDB, err :=db.Prepare(strQuery)
+	if err !=nil{
+		intAffectedRows=0
+		return intAffectedRows,err 
+	}
+	
 	res, err := selDB.Exec()
-	var intAffectedRows int64
 	if err !=nil{
 		intAffectedRows=0
-	}else{
-		intAffectedRows,err = res.RowsAffected()
-		if err !=nil{
-			intAffectedRows=0
-		}
+		return intAffectedRows,err 
 	}
+	
+	intAffectedRows,err = res.RowsAffected()
+	if err !=nil{
+		intAffectedRows=0
+	}
+	
 	
 	defer db.Close()
 	return intAffectedRows,err
-
-}
-
-func TestExecuteUpdateGetRowsAffected(strQuery string) (int64, error){
-	db := c.DbConn()
-
-	selDB, err :=db.ExecContext(ctx,strQuery)
-	var intAffectedRows int64
-	if err !=nil{
-		intAffectedRows=0
-	}else{
-		intAffectedRows,err = selDB.RowsAffected()
-		if err !=nil{
-			intAffectedRows=0
-		}
-	}
-	
-	defer db.Close()
-	return intAffectedRows,err
-
-}
-
-func TestExecuteInsertGetLastID(strQuery string) (int64, error){
-	db := c.DbConn()
-
-	selDB, err :=db.ExecContext(ctx,strQuery)
-	var intLastID int64
-	if err !=nil{
-		intLastID=0
-	}else{
-		intLastID,err = selDB.LastInsertId()
-		if err !=nil{
-			intLastID=0
-		}
-	}
-	
-	defer db.Close()
-	return intLastID,err
 
 }
 
