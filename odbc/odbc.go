@@ -5,6 +5,7 @@ import (
 	c "../config"
 	"database/sql"
 	"context"
+	"errors"
 	//"database/sql/driver"  Result Interface
 )
 
@@ -12,19 +13,12 @@ var (
 	ctx context.Context
 )
 
-func ExecuteNonQuery(strQuery string) (bool,error){
+func ExecuteNonQuery(strQuery string) (error){
 	db := c.DbConn()
 	_, err := db.Query(strQuery)
 
-	var boolResult bool
-
-	if err !=nil{
-		boolResult=false
-	}else{
-		boolResult=true
-	}
 	defer db.Close()
-	return boolResult,err
+	return err
 
 	
 
@@ -35,6 +29,68 @@ func ExecuteQueryRows(strQuery string) ( *sql.Rows, error){
 	selDB, err := db.Query(strQuery)
 	defer db.Close()
 	return selDB,err
+
+}
+
+func ExecuteQueryInt(strQuery string) ( int64, error){
+	selDB, err := ExecuteQueryRows(strQuery)
+	
+	if err != nil {
+		return 0,err
+	}
+	var intResult int64
+	count := 0
+	for selDB.Next() {
+		err = selDB.Scan(&intResult)
+        if err != nil {
+            panic(err.Error())
+		}
+		
+		count += 1 
+	}
+
+	if count==0 {
+		err:=errors.New("No row Found!")
+		return 0,err
+	}
+
+	if count>1 {
+		err:=errors.New("Multiple rows Found!")
+		return 0,err
+	}
+
+	return intResult,err
+
+}
+
+func ExecuteQueryStr(strQuery string) ( string, error){
+	selDB, err := ExecuteQueryRows(strQuery)
+	
+	if err != nil {
+		return "",err
+	}
+	var strResult string
+	count := 0
+	for selDB.Next() {
+		err = selDB.Scan(&strResult)
+        if err != nil {
+            panic(err.Error())
+		}
+		
+		count += 1 
+	}
+
+	if count==0 {
+		err:=errors.New("No row Found!")
+		return "",err
+	}
+
+	if count>1 {
+		err:=errors.New("Multiple rows Found!")
+		return "",err
+	}
+
+	return strResult,err
 
 }
 
@@ -91,7 +147,3 @@ func ExecuteUpdateGetRowsAffected(strQuery string) (int64, error){
 	return intAffectedRows,err
 
 }
-
-
-
-
