@@ -93,6 +93,36 @@ func ExecuteQueryStr(strQuery string) ( string, error){
 	return strResult,err
 
 }
+func ExecuteQueryFloat(strQuery string) (float64, error){
+	selDB, err := ExecuteQueryRows(strQuery)
+	
+	if err != nil {
+		return 0,err
+	}
+	var fltResult float64
+	count := 0
+	for selDB.Next() {
+		err = selDB.Scan(&fltResult)
+        if err != nil {
+            panic(err.Error())
+		}
+		
+		count += 1 
+	}
+
+	if count==0 {
+		err:=errors.New("No row Found!")
+		return 0,err
+	}
+
+	if count>1 {
+		err:=errors.New("Multiple rows Found!")
+		return 0,err
+	}
+
+	return fltResult,err
+
+}
 
 func ExecuteInsertGetLastID(strQuery string) (int64, error){
 	db := c.DbConn()
